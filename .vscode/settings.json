@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "rest-client.environmentVariables": {
+    "local": {
+      "baseUrl": "http://localhost:3000"
+    }
+  }
+}

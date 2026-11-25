@@ -1,0 +1,139 @@
+### ====================================================================
+### SIMADU API — Skenario Pengujian Lengkap (VS Code REST Client)
+### Mahasiswa: Erva Aisyana | NIM: 240104040151 | Kelas: TI24A
+### Pastikan server berjalan: npm start (http://localhost:3000)
+### ====================================================================
+
+@baseUrl = http://localhost:3000
+
+### [Skenario 1] Login dengan kredensial benar (Mahasiswa 1 - Erva) -> 200
+# @name loginMhs
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "erva.aisyana",
+  "password": "Mhs12345!"
+}
+
+### Simpan token mahasiswa otomatis
+@tokenMhs = {{loginMhs.response.body.data.accessToken}}
+
+### [Login Admin] Untuk skenario Admin -> 200
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin.simadu",
+  "password": "Admin12345!"
+}
+
+@tokenAdmin = {{loginAdmin.response.body.data.accessToken}}
+
+### [Skenario 2] Login dengan password salah -> 401
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "erva.aisyana",
+  "password": "PasswordSalah999"
+}
+
+### [Skenario 3] Akses endpoint terlindungi tanpa token -> 401
+GET {{baseUrl}}/api/pengaduan
+
+### [Skenario 4] Akses menggunakan token tidak valid -> 401
+GET {{baseUrl}}/api/pengaduan
+Authorization: Bearer token.palsu.tidakvalid
+
+### [Skenario 5] Mahasiswa membuat pengaduan valid -> 201
+# @name createPengaduan
+POST {{baseUrl}}/api/pengaduan
+Authorization: Bearer {{tokenMhs}}
+Content-Type: application/json
+
+{
+  "judul": "WiFi Perpustakaan Lantai 2 Sering Terputus",
+  "kategori": "TI",
+  "deskripsi": "Koneksi WiFi kampus di area baca lantai 2 sering disconnect saat mengakses jurnal online."
+}
+
+@createdId = {{createPengaduan.response.body.data.id}}
+
+### [Skenario 6] Mahasiswa membaca pengaduan sendiri -> 200
+GET {{baseUrl}}/api/pengaduan/1
+Authorization: Bearer {{tokenMhs}}
+
+### [Skenario 7] Mahasiswa mencoba membaca pengaduan orang lain (ID 3 milik Budi) -> 403
+GET {{baseUrl}}/api/pengaduan/3
+Authorization: Bearer {{tokenMhs}}
+
+### [Skenario 8] Mahasiswa mengubah status pengaduan -> 403
+PATCH {{baseUrl}}/api/pengaduan/1/status
+Authorization: Bearer {{tokenMhs}}
+Content-Type: application/json
+
+{
+  "status": "selesai"
+}
+
+### [Skenario 9] Admin melihat seluruh pengaduan -> 200
+GET {{baseUrl}}/api/pengaduan
+Authorization: Bearer {{tokenAdmin}}
+
+### [Skenario 10] Admin memperbarui status pengaduan -> 200
+PATCH {{baseUrl}}/api/pengaduan/1/status
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "status": "diproses"
+}
+
+### [Skenario 11] Membuat pengaduan dengan field wajib kosong -> 400
+POST {{baseUrl}}/api/pengaduan
+Authorization: Bearer {{tokenMhs}}
+Content-Type: application/json
+
+{
+  "judul": "",
+  "kategori": "TI",
+  "deskripsi": ""
+}
+
+### [Skenario 12] Mengakses ID pengaduan yang tidak ditemukan -> 404
+GET {{baseUrl}}/api/pengaduan/9999
+Authorization: Bearer {{tokenMhs}}
+
+### [Bonus 13] Mahasiswa mengubah pengaduan sendiri saat status 'diajukan' -> 200
+PUT {{baseUrl}}/api/pengaduan/{{createdId}}
+Authorization: Bearer {{tokenMhs}}
+Content-Type: application/json
+
+{
+  "judul": "WiFi Perpustakaan Lantai 2 Tidak Stabil (Diperbarui)",
+  "kategori": "TI",
+  "deskripsi": "Koneksi WiFi di ruang baca lantai 2 terputus setiap 10 menit saat jam sibuk kuliah."
+}
+
+### [Bonus 14] Mahasiswa menyisipkan field terlarang (mahasiswaId / status) -> 400
+POST {{baseUrl}}/api/pengaduan
+Authorization: Bearer {{tokenMhs}}
+Content-Type: application/json
+
+{
+  "mahasiswaId": "240104040199",
+  "status": "selesai",
+  "judul": "Percobaan Manipulasi Kepemilikan",
+  "kategori": "Akademik",
+  "deskripsi": "Mencoba menentukan mahasiswaId dan status secara bebas dari sisi client."
+}
+
+### [Bonus 15] Mahasiswa mencoba menghapus pengaduan yang sudah 'diproses' (ID 2) -> 403
+DELETE {{baseUrl}}/api/pengaduan/2
+Authorization: Bearer {{tokenMhs}}
+
+### [Bonus 16] Mahasiswa menghapus pengaduan sendiri saat status 'diajukan' -> 200
+DELETE {{baseUrl}}/api/pengaduan/{{createdId}}
+Authorization: Bearer {{tokenMhs}}

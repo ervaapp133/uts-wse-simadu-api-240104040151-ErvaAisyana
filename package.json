@@ -1,0 +1,33 @@
+{
+  "name": "simadu-api",
+  "version": "1.0.0",
+  "description": "SIMADU API - Sistem Layanan Informasi dan Pengaduan Mahasiswa (UTS Web Service Engineering - UIN Antasari Banjarmasin)",
+  "main": "server.cjs",
+  "author": "Erva Aisyana <erva.app133@gmail.com> (NIM: 240104040151 | Kelas: TI24A)",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.cjs",
+    "dev": "node --watch server.cjs",
+    "test": "node tests/run-tests.cjs"
+  },
+  "keywords": [
+    "rest-api",
+    "express-5",
+    "nodejs",
+    "jwt",
+    "openapi",
+    "swagger",
+    "simadu",
+    "uin-antasari"
+  ],
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
